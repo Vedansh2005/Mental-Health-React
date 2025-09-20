@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUserData, bookAppointment } from '../services/api';
+import { fetchUserData, bookAppointment, createUser } from '../services/api';
 
 const UserProfile = () => {
     const [user, setUser] = useState(null);
@@ -11,25 +11,42 @@ const UserProfile = () => {
     });
     const [bookingLoading, setBookingLoading] = useState(false);
 
-    // For demo purposes, using a hardcoded user ID
-    // In a real app, this would come from authentication context
-    const userId = 'demo-user-id';
+    // Demo user logic: create if not exists, then use returned _id
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
-        const getUserData = async () => {
+        const getOrCreateDemoUser = async () => {
+            setLoading(true);
             try {
-                // For demo, create a user first if not exists
-                const data = await fetchUserData(userId);
-                setUser(data);
+                let demoUserId = localStorage.getItem('demoUserId');
+                let userData = null;
+                if (demoUserId) {
+                    try {
+                        userData = await fetchUserData(demoUserId);
+                    } catch (err) {
+                        // User not found, clear localStorage and create new
+                        localStorage.removeItem('demoUserId');
+                        demoUserId = null;
+                        userData = null;
+                    }
+                }
+                if (!userData) {
+                    // Create demo user with valid email
+                    const newUser = await createUser({ name: 'Demo User', email: `demo${Date.now()}@example.com` });
+                    demoUserId = newUser._id;
+                    localStorage.setItem('demoUserId', demoUserId);
+                    userData = newUser;
+                }
+                setUserId(demoUserId);
+                setUser(userData);
             } catch (err) {
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
-
-        getUserData();
-    }, [userId]);
+        getOrCreateDemoUser();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -45,7 +62,10 @@ const UserProfile = () => {
             alert('Please fill in all fields');
             return;
         }
-
+        if (!userId) {
+            alert('User not loaded yet.');
+            return;
+        }
         setBookingLoading(true);
         try {
             const updatedUser = await bookAppointment(userId, appointmentForm);

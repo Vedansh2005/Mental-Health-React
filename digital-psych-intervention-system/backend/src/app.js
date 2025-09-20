@@ -1,12 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 const userRoutes = require('./routes/userRoutes');
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -16,20 +13,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mental-health-app';
-
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => {
-    console.log('Connected to MongoDB');
-})
-.catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-});
+// Ensure local storage file exists
+const userDataPath = path.join(__dirname, 'models', 'userData.json');
+if (!fs.existsSync(userDataPath)) {
+    fs.writeFileSync(userDataPath, JSON.stringify([]));
+}
+app.locals.userDataPath = userDataPath;
 
 // Routes
 app.use('/api', userRoutes);

@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "17583940859341207",
+    "name": "Demo User",
+    "email": "demo1758394085900@example.com",
+    "appointments": []
+  },
+  {
+    "_id": "17583940859435211",
+    "name": "Demo User",
+    "email": "demo1758394085902@example.com",
+    "appointments": [
+      {
+        "date": "2025-09-21T00:19",
+        "details": "uhuoaehdowh"
+      },
+      {
+        "date": "2025-09-21T00:20",
+        "details": "jahdjkah"
+      }
+    ]
+  },
+  {
+    "_id": "1758394091667258",
+    "name": "Demo User",
+    "email": "demo@example.com",
+    "appointments": []
+  }
+]

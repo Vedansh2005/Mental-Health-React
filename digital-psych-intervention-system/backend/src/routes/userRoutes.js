@@ -1,13 +1,13 @@
 const express = require('express');
 const UserController = require('../controllers/userController');
-const User = require('../models/userModel');
 
 const router = express.Router();
-const userController = new UserController(User);
+const userDataPath = require('path').join(__dirname, '../models/userData.json');
+const userController = new UserController(userDataPath);
 
 // User routes
-router.post('/users', userController.createUser);
-router.get('/users/:id', userController.getUser);
-router.post('/users/:id/appointments', userController.bookAppointment);
+router.post('/users', (req, res) => userController.createUser(req, res));
+router.get('/users/:id', (req, res) => userController.getUser(req, res));
+router.post('/users/:id/appointments', (req, res) => userController.bookAppointment(req, res));
 
 module.exports = router;
